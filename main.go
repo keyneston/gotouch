@@ -47,7 +47,7 @@ func (g *GoTouch) Touch(files ...string) error {
 		fileCreateList = append(fileCreateList, f)
 		dirCreateList = append(dirCreateList, dir)
 
-		if t := convertToTest(f); t != "" {
+		if t := convertToTest(f); !g.SkipTesting && t != "" {
 			fileCreateList = append(fileCreateList, t)
 		}
 	}
