@@ -112,6 +112,10 @@ func getPackageName(input string) string {
 }
 
 func convertToTest(name string) string {
+	if filepath.Base(name) == "main.go" {
+		return ""
+	}
+
 	ext := filepath.Ext(name)
 	if ext != ".go" {
 		return ""
