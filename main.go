@@ -87,7 +87,12 @@ func (g *GoTouch) mkfiles(files ...string) error {
 }
 
 func (g *GoTouch) mkfile(file string) error {
-	g.VerboseLog("Creating %q in package %q", file, getPackageName(file))
+	pkg, err := getPackageName(file)
+	if err != nil {
+		return err
+	}
+
+	g.VerboseLog("Creating %q in package %q", file, pkg)
 
 	if _, err := os.Lstat(file); !errors.Is(err, os.ErrNotExist) {
 		g.VerboseLog("File exists continuing: %v", file)
@@ -100,15 +105,20 @@ func (g *GoTouch) mkfile(file string) error {
 			return fmt.Errorf("Error creating %q: %w", file, err)
 		}
 		defer f.Close()
-		fmt.Fprintf(f, "package %s\n", getPackageName(file))
+		fmt.Fprintf(f, "package %s\n", pkg)
 	}
 
 	return nil
 }
 
-func getPackageName(input string) string {
-	dir := filepath.Dir(input)
-	return filepath.Base(dir)
+func getPackageName(input string) (string, error) {
+	abs, err := filepath.Abs(input)
+	if err != nil {
+		panic(err)
+	}
+
+	dir := filepath.Dir(filepath.Clean(abs))
+	return filepath.Base(dir), nil
 }
 
 func convertToTest(name string) string {
